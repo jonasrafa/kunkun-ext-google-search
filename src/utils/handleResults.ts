@@ -88,8 +88,6 @@ export async function getAutoSearchResults(
       }
     });
 
-    console.log(results);
-
     return results;
   } catch (error) {
     console.error("Error in getAutoSearchResults", error);

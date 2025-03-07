@@ -11,7 +11,7 @@ import {
   ui,
 } from "@kksh/api/ui/template";
 import { getAutoSearchResults, getStaticResult } from "./utils/handleResults";
-import { SearchResult } from "./utils/types";
+import type { SearchResult } from "./utils/types";
 
 const Actions = {
   OpenInBrowser: "Open in Browser",
@@ -28,8 +28,6 @@ class DemoExtension extends TemplateUiCommand {
   private cancelRef: AbortController | null = null;
 
   async load() {
-    // load method is run when the extension is loaded, you can use it as an initializer
-    console.log("Extension loaded");
     this.updateUI();
   }
 
@@ -49,7 +47,6 @@ class DemoExtension extends TemplateUiCommand {
     try {
       this.isLoading = true;
       this.updateUI();
-      console.log("Fetching auto results for:", searchText);
 
       if (searchText) {
         const autoSearchResult = await getAutoSearchResults(
@@ -57,7 +54,6 @@ class DemoExtension extends TemplateUiCommand {
           this.cancelRef.signal
         );
         this.autoResults = autoSearchResult;
-        console.log("Auto results fetched:", this.autoResults);
       } else {
         this.autoResults = [];
         console.log("No search text, auto results cleared");
@@ -66,21 +62,14 @@ class DemoExtension extends TemplateUiCommand {
       this.isLoading = false;
       this.updateUI();
     } catch (error) {
-      if (error instanceof AbortError) {
-        return;
-      }
-
-      console.error("Search error", error);
-      toast.error(`Could not perform search ${String(error)}`);
+      console.error("Could not perform search", error);
     }
   }
 
   combineResults() {
-    console.log("Combining results");
     this.results = [...this.staticResults, ...this.autoResults].filter(
       (value, index, self) => index === self.findIndex((t) => t.id === value.id)
     );
-    console.log("Combined results:", this.results);
   }
 
   updateUI() {
@@ -129,7 +118,9 @@ class DemoExtension extends TemplateUiCommand {
                       }),
                       icon: new Icon({
                         type: IconEnum.Iconify,
-                        value: "material-symbols:search",
+                        value: result.isNavigation
+                          ? "material-symbols:open-in-new"
+                          : "material-symbols:search",
                       }),
                     })
                 ),

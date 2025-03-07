@@ -27,7 +27,7 @@
     "demoImages": [],
     "icon": {
       "type": "iconify",
-      "value": "material-symbols:extension"
+      "value": "flat-color-icons:google"
     },
     "customUiCmds": [],
     "templateUiCmds": [
