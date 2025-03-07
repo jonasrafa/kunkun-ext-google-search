@@ -4,6 +4,11 @@
   "version": "0.0.10",
   "license": "MIT",
   "type": "module",
+  "author": "Jonas Almeida",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jonasrafa/kunkun-ext-google-search"
+  },
   "kunkun": {
     "name": "Google Search",
     "shortDescription": "Google search with autosuggestions",
@@ -24,7 +29,10 @@
         ]
       }
     ],
-    "demoImages": [],
+    "demoImages": [
+      "https://raw.githubusercontent.com/jonasrafa/kunkun-ext-google-search/refs/heads/main/public/screenshot.jpg",
+      "https://raw.githubusercontent.com/jonasrafa/kunkun-ext-google-search/refs/heads/main/public/screenshot2.jpg"
+    ],
     "icon": {
       "type": "iconify",
       "value": "flat-color-icons:google"
