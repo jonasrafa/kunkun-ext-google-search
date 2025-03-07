@@ -1,0 +1,50 @@
+{
+  "$schema": "https://schema.kunkun.sh",
+  "name": "google-search",
+  "version": "0.0.10",
+  "license": "MIT",
+  "type": "module",
+  "kunkun": {
+    "name": "Google Search",
+    "shortDescription": "Google search with autosuggestions",
+    "longDescription": "Google search with autosuggestions",
+    "identifier": "google-search",
+    "permissions": [
+      "fetch:all"
+    ],
+    "demoImages": [],
+    "icon": {
+      "type": "iconify",
+      "value": "material-symbols:extension"
+    },
+    "customUiCmds": [],
+    "templateUiCmds": [
+      {
+        "name": "Google Search",
+        "description": "Google search with autosuggestions",
+        "main": "dist/index.js",
+        "cmds": []
+      }
+    ]
+  },
+  "scripts": {
+    "dev": "bun build.ts dev",
+    "build": "bun build.ts"
+  },
+  "dependencies": {
+    "@kksh/api": "0.1.5",
+    "i18next": "^23.15.1",
+    "iconv-lite": "^0.6.3",
+    "nanoid": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "./dist",
+    ".gitignore"
+  ]
+}
