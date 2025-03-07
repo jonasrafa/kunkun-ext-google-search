@@ -1,6 +1,5 @@
 import { nanoid } from "nanoid";
-import { Preferences, SearchResult } from "./types";
-import iconv from "iconv-lite";
+import type { Preferences, SearchResult } from "./types";
 import { fetch } from "@kksh/api/ui/template";
 
 // export async function getSearchHistory(): Promise<SearchResult[]> {
@@ -41,52 +40,59 @@ export async function getAutoSearchResults(
   searchText: string,
   signal: any
 ): Promise<SearchResult[]> {
-  const response = await fetch(
-    `https://suggestqueries.google.com/complete/search?hl=en-us&output=chrome&q=${encodeURIComponent(
-      searchText
-    )}`,
-    {
-      method: "get",
-      signal: signal,
-      headers: {
-        "Content-Type": "text/plain; charset=UTF-8",
-      },
-    }
-  );
+  try {
+    const response = await fetch(
+      `https://suggestqueries.google.com/complete/search?hl=en-us&output=chrome&q=${encodeURIComponent(
+        searchText
+      )}`,
+      {
+        method: "get",
+        signal: signal,
+        headers: {
+          "Content-Type": "text/plain; charset=UTF-8",
+        },
+      }
+    );
 
-  if (!response.ok) {
-    return Promise.reject(response.statusText);
+    if (!response.ok) {
+      console.error("Response not OK", response.status, response.statusText);
+      return Promise.reject(response.statusText);
+    }
+
+    const buffer = await response.arrayBuffer();
+    const decoder = new TextDecoder("iso-8859-1");
+    const text = decoder.decode(buffer);
+    const json = JSON.parse(text);
+
+    const results: SearchResult[] = [];
+
+    json[1].map((item: string, i: number) => {
+      const type = json[4]["google:suggesttype"][i];
+      const description = json[2][i];
+
+      if (type === "NAVIGATION") {
+        results.push({
+          id: nanoid(),
+          query: description.length > 0 ? description : item,
+          description: `Open URL for '${item}'`,
+          url: item,
+          isNavigation: true,
+        });
+      } else if (type === "QUERY") {
+        results.push({
+          id: nanoid(),
+          query: item,
+          description: `Search Google for '${item}'`,
+          url: `https://www.google.com/search?q=${encodeURIComponent(item)}`,
+        });
+      }
+    });
+
+    console.log(results);
+
+    return results;
+  } catch (error) {
+    console.error("Error in getAutoSearchResults", error);
+    return Promise.reject(error);
   }
-
-  const buffer = await response.arrayBuffer();
-  const text = iconv.decode(Buffer.from(buffer), "iso-8859-1");
-  const json = JSON.parse(text);
-
-  const results: SearchResult[] = [];
-
-  json[1].map((item: string, i: number) => {
-    const type = json[4]["google:suggesttype"][i];
-    const description = json[2][i];
-
-    if (type === "NAVIGATION") {
-      results.push({
-        id: nanoid(),
-        query: description.length > 0 ? description : item,
-        description: `Open URL for '${item}'`,
-        url: item,
-        isNavigation: true,
-      });
-    } else if (type === "QUERY") {
-      results.push({
-        id: nanoid(),
-        query: item,
-        description: `Search Google for '${item}'`,
-        url: `https://www.google.com/search?q=${encodeURIComponent(item)}`,
-      });
-    }
-  });
-
-  console.log(results);
-
-  return results;
 }

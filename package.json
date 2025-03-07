@@ -10,7 +10,19 @@
     "longDescription": "Google search with autosuggestions",
     "identifier": "google-search",
     "permissions": [
-      "fetch:all"
+      "fetch:all",
+      "clipboard:write-text",
+      {
+        "permission": "open:url",
+        "allow": [
+          {
+            "url": "https://**"
+          },
+          {
+            "url": "http://**"
+          }
+        ]
+      }
     ],
     "demoImages": [],
     "icon": {

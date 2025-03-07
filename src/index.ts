@@ -1,6 +1,23 @@
-import { expose, List, TemplateUiCommand, ui } from "@kksh/api/ui/template";
+import {
+  Action,
+  clipboard,
+  expose,
+  Icon,
+  IconEnum,
+  List,
+  open,
+  TemplateUiCommand,
+  toast,
+  ui,
+} from "@kksh/api/ui/template";
 import { getAutoSearchResults, getStaticResult } from "./utils/handleResults";
 import { SearchResult } from "./utils/types";
+
+const Actions = {
+  OpenInBrowser: "Open in Browser",
+  CopyUrl: "Copy URL",
+  CopyQuery: "Copy Query",
+};
 
 class DemoExtension extends TemplateUiCommand {
   private isLoading: boolean = false;
@@ -54,11 +71,7 @@ class DemoExtension extends TemplateUiCommand {
       }
 
       console.error("Search error", error);
-      ui.showToast({
-        style: "error",
-        title: "Could not perform search",
-        message: String(error),
-      });
+      toast.error(`Could not perform search ${String(error)}`);
     }
   }
 
@@ -79,11 +92,45 @@ class DemoExtension extends TemplateUiCommand {
           new List.List({
             sections: [
               new List.Section({
+                title: "Results",
                 items: this.results.map(
                   (result) =>
                     new List.Item({
                       title: result.query,
-                      value: result.id,
+                      value: result.url,
+                      defaultAction: Actions.OpenInBrowser,
+                      actions: new Action.ActionPanel({
+                        items: [
+                          new Action.Action({
+                            title: Actions.OpenInBrowser,
+                            value: Actions.OpenInBrowser,
+                            icon: new Icon({
+                              type: IconEnum.Iconify,
+                              value: "material-symbols:open-in-new",
+                            }),
+                          }),
+                          new Action.Action({
+                            title: Actions.CopyUrl,
+                            value: Actions.CopyUrl,
+                            icon: new Icon({
+                              type: IconEnum.Iconify,
+                              value: "material-symbols:copy-all-outline",
+                            }),
+                          }),
+                          new Action.Action({
+                            title: Actions.CopyQuery,
+                            value: Actions.CopyQuery,
+                            icon: new Icon({
+                              type: IconEnum.Iconify,
+                              value: "material-symbols:copy-all-outline",
+                            }),
+                          }),
+                        ],
+                      }),
+                      icon: new Icon({
+                        type: IconEnum.Iconify,
+                        value: "material-symbols:search",
+                      }),
                     })
                 ),
               }),
@@ -91,6 +138,51 @@ class DemoExtension extends TemplateUiCommand {
           })
         );
       });
+  }
+
+  onListItemSelected(value: string): Promise<void> {
+    return open.url(value);
+  }
+
+  onActionSelected(value: string): Promise<void> {
+    if (this.highlightedListItemValue) {
+      if (value === Actions.OpenInBrowser) {
+        console.log(this.highlightedListItemValue);
+        return open.url(this.highlightedListItemValue);
+      }
+
+      if (value === Actions.CopyUrl) {
+        return clipboard
+          .writeText(this.highlightedListItemValue)
+          .then(() => {
+            return toast.success("Copied URL to clipboard");
+          })
+          .catch((err) => {
+            console.error(err);
+            return toast.error("Failed to copy URL to clipboard");
+          });
+      }
+
+      if (value === Actions.CopyQuery) {
+        const query = this.results.find(
+          (result) => result.url === this.highlightedListItemValue
+        )?.query;
+        if (query) {
+          return clipboard
+            .writeText(query)
+            .then(() => {
+              return toast.success("Copied query to clipboard");
+            })
+            .catch((err) => {
+              console.error(err);
+              return toast.error("Failed to copy query to clipboard");
+            });
+        }
+      }
+
+      return Promise.resolve();
+    }
+    return toast.warning("No item selected").then(() => {});
   }
 }
 
