@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.kunkun.sh",
-  "name": "google-search",
+  "name": "kunkun-ext-google-search",
   "version": "0.0.10",
   "license": "MIT",
   "type": "module",
@@ -13,7 +13,7 @@
     "name": "Google Search",
     "shortDescription": "Google search with autosuggestions",
     "longDescription": "Google search with autosuggestions",
-    "identifier": "google-search",
+    "identifier": "kunkun-ext-google-search",
     "permissions": [
       "fetch:all",
       "clipboard:write-text",
